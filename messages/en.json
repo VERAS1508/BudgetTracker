@@ -20,10 +20,22 @@
   },
   "dashboard": {
     "title": "Dashboard",
+    "addExpense": "Add Expense",
     "totalMonth": "Total this month",
+    "expenseCount": "Number of Expenses",
+    "biggestExpense": "Biggest Expense",
+    "avgPerDay": "Avg per Day",
     "recentExpenses": "Recent Expenses",
-    "monthlyChart": "Expenses by Category",
+    "latestTransactions": "Latest transactions this month",
+    "expensesByCategory": "Expenses by Category",
+    "currentMonthBreakdown": "Current month breakdown",
+    "spendingDistribution": "Spending Distribution",
+    "categoryPercentages": "Category percentages",
+    "monthlyTrend": "Monthly Trend",
+    "last6Months": "Last 6 months",
+    "other": "Other",
     "noExpenses": "No expenses this month yet.",
+    "noData": "No data available",
     "viewAll": "View all"
   },
   "expenses": {

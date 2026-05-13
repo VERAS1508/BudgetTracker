@@ -8,7 +8,7 @@ import {
   TrendingUp,
   TrendingDown,
   Wallet,
-  PiggyBank,
+  Receipt,
   ArrowRight,
   BarChart3,
   PieChart
@@ -18,34 +18,49 @@ import StatCard from '@/components/StatCard';
 import DashboardCard from '@/components/DashboardCard';
 import ExpenseBarChart from '@/components/charts/ExpenseBarChart';
 import ExpensePieChart from '@/components/charts/ExpensePieChart';
-import IncomeExpenseChart from '@/components/charts/IncomeExpenseChart';
 
 type Props = { params: Promise<{ locale: string }> };
 
-// Sample data for testing the visualizations
-const SAMPLE_CATEGORY_DATA = [
-  { name: 'Housing', amount: 1200, color: '#10b981' },
-  { name: 'Food', amount: 450, color: '#3b82f6' },
-  { name: 'Transport', amount: 280, color: '#f59e0b' },
-  { name: 'Utilities', amount: 180, color: '#ec4899' },
-  { name: 'Entertainment', amount: 150, color: '#8b5cf6' },
-  { name: 'Shopping', amount: 320, color: '#06b6d4' }
-];
+function buildCategoryData(expenses: Expense[], other: string) {
+  const map = new Map<string, { name: string; amount: number; color: string }>();
+  for (const e of expenses) {
+    const key = e.categories?.name ?? other;
+    const color = e.categories?.color ?? '#475569';
+    const existing = map.get(key);
+    if (existing) {
+      existing.amount += Number(e.amount);
+    } else {
+      map.set(key, { name: key, amount: Number(e.amount), color });
+    }
+  }
+  return Array.from(map.values()).sort((a, b) => b.amount - a.amount);
+}
 
-const SAMPLE_PIE_DATA = SAMPLE_CATEGORY_DATA.map((item) => ({
-  name: item.name,
-  value: item.amount,
-  color: item.color
-}));
+function buildMonthlyData(
+  expenses: { amount: number; date: string }[],
+  locale: string
+) {
+  const months = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date();
+    d.setDate(1);
+    d.setMonth(d.getMonth() - (5 - i));
+    return {
+      name: d.toLocaleDateString(locale === 'de' ? 'de-DE' : 'en-US', { month: 'short' }),
+      year: d.getFullYear(),
+      month: d.getMonth(),
+      amount: 0,
+      color: '#4f46e5'
+    };
+  });
 
-const SAMPLE_MONTHLY_DATA = [
-  { name: 'Jan', income: 4500, expenses: 3200 },
-  { name: 'Feb', income: 4800, expenses: 3100 },
-  { name: 'Mar', income: 4200, expenses: 3400 },
-  { name: 'Apr', income: 5100, expenses: 3000 },
-  { name: 'May', income: 4700, expenses: 3300 },
-  { name: 'Jun', income: 4900, expenses: 2900 }
-];
+  for (const e of expenses) {
+    const d = new Date(e.date + 'T00:00:00');
+    const m = months.find(m => m.year === d.getFullYear() && m.month === d.getMonth());
+    if (m) m.amount += Number(e.amount);
+  }
+
+  return months.map(({ name, amount, color }) => ({ name, amount, color }));
+}
 
 export default async function DashboardPage({ params }: Props) {
   const { locale } = await params;
@@ -57,46 +72,59 @@ export default async function DashboardPage({ params }: Props) {
 
   const { start, end } = getCurrentMonthRange();
 
-  const { data: expenses } = await supabase
-    .from('expenses')
-    .select('*, categories(name, color)')
-    .gte('date', start)
-    .lte('date', end)
-    .order('date', { ascending: false });
+  // Last 6 months start date
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setDate(1);
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+  const sixMonthsStart = sixMonthsAgo.toISOString().split('T')[0];
+
+  const [{ data: expenses }, { data: allExpenses }] = await Promise.all([
+    supabase
+      .from('expenses')
+      .select('*, categories(name, color)')
+      .gte('date', start)
+      .lte('date', end)
+      .order('date', { ascending: false }),
+    supabase
+      .from('expenses')
+      .select('amount, date')
+      .gte('date', sixMonthsStart)
+      .order('date', { ascending: true })
+  ]);
 
   const typedExpenses = (expenses || []) as Expense[];
   const total = typedExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
-  const hasRealData = typedExpenses.length > 0;
 
-  // Build chart data from real expenses
-  const realCategoryData = buildCategoryData(typedExpenses);
+  // Real stats
+  const expenseCount = typedExpenses.length;
+  const biggest = typedExpenses.reduce((max, e) => Math.max(max, Number(e.amount)), 0);
+  const daysInMonth = new Date(
+    new Date().getFullYear(), new Date().getMonth() + 1, 0
+  ).getDate();
+  const avgPerDay = total / daysInMonth;
+
+  const categoryData = buildCategoryData(typedExpenses, t('other'));
+  const pieData = categoryData.map(({ name, amount, color }) => ({ name, value: amount, color }));
+  const monthlyData = buildMonthlyData(allExpenses || [], locale);
 
   const monthName = new Date().toLocaleDateString(locale === 'de' ? 'de-DE' : 'en-US', {
     month: 'long',
     year: 'numeric'
   });
 
-  // Use real data if available, otherwise show sample data
-  const barChartData = hasRealData ? realCategoryData : SAMPLE_CATEGORY_DATA;
-  const pieChartData = hasRealData
-    ? realCategoryData.map((item) => ({ name: item.name, value: item.amount, color: item.color }))
-    : SAMPLE_PIE_DATA;
-
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-            {t('title')}
-          </h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{t('title')}</h1>
           <p className="text-muted-foreground mt-1">{monthName}</p>
         </div>
         <Link
           href={`/${locale}/expenses`}
           className="inline-flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors w-fit"
         >
-          Add Expense
+          {t('addExpense')}
           <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
@@ -105,86 +133,74 @@ export default async function DashboardPage({ params }: Props) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label={t('totalMonth')}
-          value={formatCurrency(hasRealData ? total : 2580)}
+          value={formatCurrency(total)}
           icon={<Wallet className="w-5 h-5" />}
-          trend={{ value: '12%', isPositive: false }}
           variant="default"
         />
         <StatCard
-          label="Income"
-          value={formatCurrency(hasRealData ? 4500 : 4900)}
-          icon={<TrendingUp className="w-5 h-5" />}
-          trend={{ value: '8%', isPositive: true }}
-          variant="success"
+          label={t('expenseCount')}
+          value={String(expenseCount)}
+          icon={<Receipt className="w-5 h-5" />}
+          variant="default"
         />
         <StatCard
-          label="Savings"
-          value={formatCurrency(hasRealData ? 4500 - total : 2320)}
-          icon={<PiggyBank className="w-5 h-5" />}
-          trend={{ value: '15%', isPositive: true }}
-          variant="success"
-        />
-        <StatCard
-          label="Budget Used"
-          value={`${hasRealData ? Math.round((total / 3000) * 100) : 86}%`}
+          label={t('biggestExpense')}
+          value={biggest > 0 ? formatCurrency(biggest) : '—'}
           icon={<TrendingDown className="w-5 h-5" />}
-          variant={hasRealData && (total / 3000) > 0.9 ? 'danger' : 'warning'}
+          variant={biggest > 500 ? 'danger' : 'warning'}
+        />
+        <StatCard
+          label={t('avgPerDay')}
+          value={total > 0 ? formatCurrency(avgPerDay) : '—'}
+          icon={<TrendingUp className="w-5 h-5" />}
+          variant="success"
         />
       </div>
-
-      {/* Sample Data Notice */}
-      {!hasRealData && (
-        <div className="bg-chart-3/10 border border-chart-3/20 rounded-lg px-4 py-3 text-sm text-chart-3">
-          Showing sample data for visualization preview. Add expenses to see your real data.
-        </div>
-      )}
 
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Expense Bar Chart */}
         <DashboardCard
-          title="Expenses by Category"
-          description="Current month breakdown"
+          title={t('expensesByCategory')}
+          description={t('currentMonthBreakdown')}
           icon={<BarChart3 className="w-5 h-5 text-primary" />}
         >
-          <ExpenseBarChart data={barChartData} formatValue={formatCurrency} />
+          {categoryData.length > 0 ? (
+            <ExpenseBarChart data={categoryData} />
+          ) : (
+            <div className="h-[280px] flex items-center justify-center text-muted-foreground text-sm">
+              {t('noData')}
+            </div>
+          )}
         </DashboardCard>
 
-        {/* Expense Pie Chart */}
         <DashboardCard
-          title="Spending Distribution"
-          description="Category percentages"
+          title={t('spendingDistribution')}
+          description={t('categoryPercentages')}
           icon={<PieChart className="w-5 h-5 text-primary" />}
         >
-          <ExpensePieChart data={pieChartData} formatValue={formatCurrency} />
+          {pieData.length > 0 ? (
+            <ExpensePieChart data={pieData} />
+          ) : (
+            <div className="h-[280px] flex items-center justify-center text-muted-foreground text-sm">
+              {t('noData')}
+            </div>
+          )}
         </DashboardCard>
       </div>
 
-      {/* Income vs Expenses Trend */}
+      {/* Monthly Trend */}
       <DashboardCard
-        title="Income vs Expenses"
-        description="6 month trend overview"
+        title={t('monthlyTrend')}
+        description={t('last6Months')}
         icon={<TrendingUp className="w-5 h-5 text-primary" />}
-        action={
-          <div className="flex items-center gap-4 text-xs">
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-chart-1" />
-              <span className="text-muted-foreground">Income</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-destructive" />
-              <span className="text-muted-foreground">Expenses</span>
-            </div>
-          </div>
-        }
       >
-        <IncomeExpenseChart data={SAMPLE_MONTHLY_DATA} formatValue={formatCurrency} />
+        <ExpenseBarChart data={monthlyData} />
       </DashboardCard>
 
       {/* Recent Expenses */}
       <DashboardCard
         title={t('recentExpenses')}
-        description="Latest transactions this month"
+        description={t('latestTransactions')}
         action={
           <Link
             href={`/${locale}/expenses`}
@@ -195,34 +211,7 @@ export default async function DashboardPage({ params }: Props) {
           </Link>
         }
       >
-        {!hasRealData ? (
-          <div className="space-y-3">
-            {SAMPLE_RECENT_EXPENSES.map((expense, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between py-3 border-b border-border last:border-0"
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className="w-3 h-3 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: expense.color }}
-                  />
-                  <div>
-                    <p className="text-sm font-medium text-foreground">
-                      {expense.description}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {expense.category}
-                    </p>
-                  </div>
-                </div>
-                <span className="text-sm font-semibold text-foreground">
-                  {formatCurrency(expense.amount)}
-                </span>
-              </div>
-            ))}
-          </div>
-        ) : typedExpenses.length === 0 ? (
+        {typedExpenses.length === 0 ? (
           <p className="text-muted-foreground text-sm py-8 text-center">
             {t('noExpenses')}
           </p>
@@ -234,20 +223,14 @@ export default async function DashboardPage({ params }: Props) {
                 className="flex items-center justify-between py-3 border-b border-border last:border-0"
               >
                 <div className="flex items-center gap-3">
-                  {expense.categories?.color && (
-                    <div
-                      className="w-3 h-3 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: expense.categories.color }}
-                    />
-                  )}
+                  <div
+                    className="w-3 h-3 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: expense.categories?.color ?? '#475569' }}
+                  />
                   <div>
-                    <p className="text-sm font-medium text-foreground">
-                      {expense.description}
-                    </p>
+                    <p className="text-sm font-medium text-foreground">{expense.description}</p>
                     {expense.categories?.name && (
-                      <p className="text-xs text-muted-foreground">
-                        {expense.categories.name}
-                      </p>
+                      <p className="text-xs text-muted-foreground">{expense.categories.name}</p>
                     )}
                   </div>
                 </div>
@@ -261,30 +244,4 @@ export default async function DashboardPage({ params }: Props) {
       </DashboardCard>
     </div>
   );
-}
-
-// Sample recent expenses for preview
-const SAMPLE_RECENT_EXPENSES = [
-  { description: 'Grocery Store', category: 'Food', amount: 85.50, color: '#3b82f6' },
-  { description: 'Electric Bill', category: 'Utilities', amount: 120.00, color: '#ec4899' },
-  { description: 'Gas Station', category: 'Transport', amount: 45.00, color: '#f59e0b' },
-  { description: 'Netflix Subscription', category: 'Entertainment', amount: 15.99, color: '#8b5cf6' },
-  { description: 'Coffee Shop', category: 'Food', amount: 12.50, color: '#3b82f6' }
-];
-
-function buildCategoryData(expenses: Expense[]) {
-  const map = new Map<string, { name: string; amount: number; color: string }>();
-
-  for (const e of expenses) {
-    const key = e.categories?.name ?? 'Other';
-    const color = e.categories?.color ?? '#475569';
-    const existing = map.get(key);
-    if (existing) {
-      existing.amount += Number(e.amount);
-    } else {
-      map.set(key, { name: key, amount: Number(e.amount), color });
-    }
-  }
-
-  return Array.from(map.values()).sort((a, b) => b.amount - a.amount);
 }

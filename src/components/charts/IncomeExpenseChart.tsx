@@ -9,24 +9,20 @@ import {
   ResponsiveContainer,
   CartesianGrid
 } from 'recharts';
+import { formatCurrency } from '@/lib/utils';
 
 type DataPoint = { name: string; income: number; expenses: number };
 
-type Props = {
-  data: DataPoint[];
-  formatValue?: (value: number) => string;
-};
+type Props = { data: DataPoint[] };
 
 function CustomTooltip({
   active,
   payload,
-  label,
-  formatValue
+  label
 }: {
   active?: boolean;
   payload?: Array<{ name: string; value: number; color: string }>;
   label?: string;
-  formatValue?: (value: number) => string;
 }) {
   if (!active || !payload?.length) return null;
   return (
@@ -42,7 +38,7 @@ function CustomTooltip({
             <span className="text-xs text-muted-foreground capitalize">{item.name}</span>
           </div>
           <span className="text-sm font-medium text-foreground">
-            {formatValue ? formatValue(item.value) : item.value}
+            {formatCurrency(item.value)}
           </span>
         </div>
       ))}
@@ -50,7 +46,7 @@ function CustomTooltip({
   );
 }
 
-export default function IncomeExpenseChart({ data, formatValue }: Props) {
+export default function IncomeExpenseChart({ data }: Props) {
   if (data.length === 0) return null;
 
   return (
@@ -85,7 +81,7 @@ export default function IncomeExpenseChart({ data, formatValue }: Props) {
             new Intl.NumberFormat('de-DE', { notation: 'compact' }).format(v)
           }
         />
-        <Tooltip content={<CustomTooltip formatValue={formatValue} />} />
+        <Tooltip content={<CustomTooltip />} />
         <Area
           type="monotone"
           dataKey="income"

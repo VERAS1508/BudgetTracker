@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import LanguageSwitch from './LanguageSwitch';
-import { Wallet, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
 
 type Props = { locale: string };
 
@@ -58,8 +59,8 @@ export default function LoginForm({ locale }: Props) {
       <div className="bg-card border border-border rounded-2xl p-8 shadow-2xl shadow-black/20">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-            <Wallet className="w-7 h-7 text-primary" />
+          <div className="flex justify-center mb-4">
+            <Image src="/logo.svg" alt="Budget Tracker" width={56} height={56} />
           </div>
           <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
           <p className="text-sm text-muted-foreground mt-1">{t('subtitle')}</p>

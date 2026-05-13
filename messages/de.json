@@ -20,10 +20,22 @@
   },
   "dashboard": {
     "title": "Dashboard",
+    "addExpense": "Ausgabe hinzufügen",
     "totalMonth": "Gesamt diesen Monat",
+    "expenseCount": "Anzahl Ausgaben",
+    "biggestExpense": "Größte Ausgabe",
+    "avgPerDay": "Ø pro Tag",
     "recentExpenses": "Letzte Ausgaben",
-    "monthlyChart": "Ausgaben nach Kategorie",
+    "latestTransactions": "Letzte Transaktionen diesen Monat",
+    "expensesByCategory": "Ausgaben nach Kategorie",
+    "currentMonthBreakdown": "Aufschlüsselung diesen Monat",
+    "spendingDistribution": "Ausgabenverteilung",
+    "categoryPercentages": "Kategorie-Anteile",
+    "monthlyTrend": "Monatlicher Verlauf",
+    "last6Months": "Letzte 6 Monate",
+    "other": "Sonstige",
     "noExpenses": "Noch keine Ausgaben diesen Monat.",
+    "noData": "Keine Daten vorhanden",
     "viewAll": "Alle anzeigen"
   },
   "expenses": {

@@ -1,22 +1,18 @@
 'use client';
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { formatCurrency } from '@/lib/utils';
 
 type ChartEntry = { name: string; value: number; color: string };
 
-type Props = {
-  data: ChartEntry[];
-  formatValue?: (value: number) => string;
-};
+type Props = { data: ChartEntry[] };
 
 function CustomTooltip({
   active,
-  payload,
-  formatValue
+  payload
 }: {
   active?: boolean;
   payload?: Array<{ name: string; value: number; payload: ChartEntry }>;
-  formatValue?: (value: number) => string;
 }) {
   if (!active || !payload?.length) return null;
   const item = payload[0];
@@ -30,7 +26,7 @@ function CustomTooltip({
         <p className="text-xs text-muted-foreground">{item.name}</p>
       </div>
       <p className="text-sm font-semibold text-foreground">
-        {formatValue ? formatValue(item.value) : item.value}
+        {formatCurrency(item.value)}
       </p>
     </div>
   );
@@ -53,7 +49,7 @@ function CustomLegend({ payload }: { payload?: Array<{ value: string; color: str
   );
 }
 
-export default function ExpensePieChart({ data, formatValue }: Props) {
+export default function ExpensePieChart({ data }: Props) {
   if (data.length === 0) return null;
 
   return (
@@ -73,7 +69,7 @@ export default function ExpensePieChart({ data, formatValue }: Props) {
             <Cell key={`cell-${index}`} fill={entry.color} />
           ))}
         </Pie>
-        <Tooltip content={<CustomTooltip formatValue={formatValue} />} />
+        <Tooltip content={<CustomTooltip />} />
         <Legend content={<CustomLegend />} />
       </PieChart>
     </ResponsiveContainer>

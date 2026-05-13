@@ -10,37 +10,33 @@ import {
   Cell,
   CartesianGrid
 } from 'recharts';
+import { formatCurrency } from '@/lib/utils';
 
 type ChartEntry = { name: string; amount: number; color: string };
 
-type Props = {
-  data: ChartEntry[];
-  formatValue?: (value: number) => string;
-};
+type Props = { data: ChartEntry[] };
 
 function CustomTooltip({
   active,
   payload,
-  label,
-  formatValue
+  label
 }: {
   active?: boolean;
   payload?: Array<{ value: number; payload: ChartEntry }>;
   label?: string;
-  formatValue?: (value: number) => string;
 }) {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-card border border-border rounded-lg px-3 py-2 shadow-lg">
       <p className="text-xs text-muted-foreground mb-1">{label}</p>
       <p className="text-sm font-semibold text-foreground">
-        {formatValue ? formatValue(payload[0].value) : payload[0].value}
+        {formatCurrency(payload[0].value)}
       </p>
     </div>
   );
 }
 
-export default function ExpenseBarChart({ data, formatValue }: Props) {
+export default function ExpenseBarChart({ data }: Props) {
   if (data.length === 0) return null;
 
   return (
@@ -70,7 +66,7 @@ export default function ExpenseBarChart({ data, formatValue }: Props) {
           }
         />
         <Tooltip
-          content={<CustomTooltip formatValue={formatValue} />}
+          content={<CustomTooltip />}
           cursor={{ fill: 'var(--color-muted)', opacity: 0.2 }}
         />
         <Bar dataKey="amount" radius={[6, 6, 0, 0]} maxBarSize={50}>
