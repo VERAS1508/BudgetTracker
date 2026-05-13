@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "expenses": "Expenses",
+    "categories": "Categories",
+    "logout": "Logout"
+  },
+  "auth": {
+    "title": "Budget Tracker",
+    "subtitle": "Keep track of your finances",
+    "email": "Email",
+    "password": "Password",
+    "loginButton": "Login",
+    "registerButton": "Register",
+    "switchToRegister": "No account yet? Register",
+    "switchToLogin": "Already have an account? Login",
+    "loginError": "Login failed. Please check your credentials.",
+    "registerError": "Registration failed. Please try again.",
+    "registerSuccess": "Account created! Please confirm your email."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "totalMonth": "Total this month",
+    "recentExpenses": "Recent Expenses",
+    "monthlyChart": "Expenses by Category",
+    "noExpenses": "No expenses this month yet.",
+    "viewAll": "View all"
+  },
+  "expenses": {
+    "title": "Expenses",
+    "addExpense": "Add Expense",
+    "amount": "Amount (€)",
+    "description": "Description",
+    "category": "Category",
+    "noCategory": "No Category",
+    "date": "Date",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "noExpenses": "No expenses yet.",
+    "noCategories": "Create a category first.",
+    "confirmDelete": "Delete this expense?",
+    "total": "Total"
+  },
+  "categories": {
+    "title": "Categories",
+    "addCategory": "Add Category",
+    "name": "Name",
+    "color": "Color",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "noCategories": "No categories created yet.",
+    "confirmDelete": "Delete category? Expenses will remain.",
+    "expenses": "Expenses"
+  }
+}

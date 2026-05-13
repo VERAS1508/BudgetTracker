@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "expenses": "Ausgaben",
+    "categories": "Kategorien",
+    "logout": "Abmelden"
+  },
+  "auth": {
+    "title": "Budget Tracker",
+    "subtitle": "Behalte deine Finanzen im Blick",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "loginButton": "Anmelden",
+    "registerButton": "Registrieren",
+    "switchToRegister": "Noch kein Konto? Registrieren",
+    "switchToLogin": "Bereits ein Konto? Anmelden",
+    "loginError": "Anmeldung fehlgeschlagen. Bitte überprüfe deine Daten.",
+    "registerError": "Registrierung fehlgeschlagen. Bitte versuche es erneut.",
+    "registerSuccess": "Konto erstellt! Bitte E-Mail bestätigen."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "totalMonth": "Gesamt diesen Monat",
+    "recentExpenses": "Letzte Ausgaben",
+    "monthlyChart": "Ausgaben nach Kategorie",
+    "noExpenses": "Noch keine Ausgaben diesen Monat.",
+    "viewAll": "Alle anzeigen"
+  },
+  "expenses": {
+    "title": "Ausgaben",
+    "addExpense": "Ausgabe hinzufügen",
+    "amount": "Betrag (€)",
+    "description": "Beschreibung",
+    "category": "Kategorie",
+    "noCategory": "Keine Kategorie",
+    "date": "Datum",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "noExpenses": "Noch keine Ausgaben vorhanden.",
+    "noCategories": "Erstelle zuerst eine Kategorie.",
+    "confirmDelete": "Ausgabe wirklich löschen?",
+    "total": "Gesamt"
+  },
+  "categories": {
+    "title": "Kategorien",
+    "addCategory": "Kategorie hinzufügen",
+    "name": "Name",
+    "color": "Farbe",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "noCategories": "Noch keine Kategorien erstellt.",
+    "confirmDelete": "Kategorie löschen? Ausgaben bleiben erhalten.",
+    "expenses": "Ausgaben"
+  }
+}
