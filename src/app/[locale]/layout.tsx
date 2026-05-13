@@ -17,14 +17,14 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <NextIntlClientProvider messages={messages}>
       {user ? (
-        <div className="min-h-screen" style={{ backgroundColor: '#020617' }}>
+        <div className="min-h-screen bg-background">
           <Navigation locale={locale} />
-          <main className="max-w-5xl mx-auto px-4 py-8">
+          <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
             {children}
           </main>
         </div>
       ) : (
-        <div className="min-h-screen" style={{ backgroundColor: '#020617' }}>
+        <div className="min-h-screen bg-background">
           {children}
         </div>
       )}

@@ -2,6 +2,7 @@
 
 import { useRouter, usePathname } from 'next/navigation';
 import { useLocale } from 'next-intl';
+import { Globe } from 'lucide-react';
 
 export default function LanguageSwitch() {
   const locale = useLocale();
@@ -9,23 +10,23 @@ export default function LanguageSwitch() {
   const pathname = usePathname();
 
   function switchLocale(newLocale: string) {
-    // Replace the current locale prefix with the new one
     const segments = pathname.split('/');
     segments[1] = newLocale;
     router.push(segments.join('/'));
   }
 
   return (
-    <div className="flex gap-1 rounded-lg p-1" style={{ backgroundColor: '#1e293b' }}>
-      {(['de', 'en'] as const).map(l => (
+    <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+      <Globe className="w-4 h-4 text-muted-foreground ml-2" />
+      {(['de', 'en'] as const).map((l) => (
         <button
           key={l}
           onClick={() => switchLocale(l)}
-          className="px-3 py-1 rounded-md text-sm font-medium transition-colors"
-          style={{
-            backgroundColor: locale === l ? '#4f46e5' : 'transparent',
-            color: locale === l ? '#fff' : '#94a3b8'
-          }}
+          className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+            locale === l
+              ? 'bg-primary text-primary-foreground'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
         >
           {l.toUpperCase()}
         </button>

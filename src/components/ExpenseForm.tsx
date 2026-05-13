@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import { todayISO } from '@/lib/utils';
 import type { Category } from '@/types';
+import { Plus, X, Loader2, Calendar, DollarSign, FileText, Tag } from 'lucide-react';
 
 type Props = { categories: Category[] };
 
@@ -54,102 +55,139 @@ export default function ExpenseForm({ categories }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-opacity"
-        style={{ backgroundColor: '#4f46e5' }}
+        className="inline-flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
       >
-        + {t('addExpense')}
+        <Plus className="w-4 h-4" />
+        {t('addExpense')}
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ backgroundColor: 'rgba(0,0,0,0.7)' }}>
-          <div className="w-full max-w-md rounded-2xl border p-6 space-y-4"
-            style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
-            <h2 className="text-lg font-semibold text-white">{t('addExpense')}</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl shadow-black/20 overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+              <h2 className="text-lg font-semibold text-foreground">{t('addExpense')}</h2>
+              <button
+                onClick={() => setOpen(false)}
+                className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="p-6 space-y-5">
+              <div className="grid grid-cols-2 gap-4">
+                {/* Amount */}
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: '#94a3b8' }}>
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     {t('amount')}
                   </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0.01"
-                    value={amount}
-                    onChange={e => setAmount(e.target.value)}
-                    required
-                    className="w-full rounded-lg px-3 py-2 text-white text-sm outline-none"
-                    style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}
-                    placeholder="0.00"
-                  />
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <DollarSign className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      required
+                      className="w-full bg-muted border border-border rounded-lg pl-10 pr-4 py-2.5 text-foreground text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-muted-foreground"
+                      placeholder="0.00"
+                    />
+                  </div>
                 </div>
+
+                {/* Date */}
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: '#94a3b8' }}>
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     {t('date')}
                   </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Calendar className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                    <input
+                      type="date"
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      required
+                      className="w-full bg-muted border border-border rounded-lg pl-10 pr-4 py-2.5 text-foreground text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  {t('description')}
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FileText className="w-4 h-4 text-muted-foreground" />
+                  </div>
                   <input
-                    type="date"
-                    value={date}
-                    onChange={e => setDate(e.target.value)}
+                    type="text"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
                     required
-                    className="w-full rounded-lg px-3 py-2 text-white text-sm outline-none"
-                    style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}
+                    className="w-full bg-muted border border-border rounded-lg pl-10 pr-4 py-2.5 text-foreground text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-muted-foreground"
+                    placeholder="e.g. Grocery shopping"
                   />
                 </div>
               </div>
 
+              {/* Category */}
               <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: '#94a3b8' }}>
-                  {t('description')}
-                </label>
-                <input
-                  type="text"
-                  value={description}
-                  onChange={e => setDescription(e.target.value)}
-                  required
-                  className="w-full rounded-lg px-3 py-2 text-white text-sm outline-none"
-                  style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}
-                  placeholder="z.B. Supermarkt"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium mb-1" style={{ color: '#94a3b8' }}>
+                <label className="block text-sm font-medium text-foreground mb-2">
                   {t('category')}
                 </label>
-                <select
-                  value={categoryId}
-                  onChange={e => setCategoryId(e.target.value)}
-                  className="w-full rounded-lg px-3 py-2 text-white text-sm outline-none"
-                  style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}
-                >
-                  <option value="">{t('noCategory')}</option>
-                  {categories.map(cat => (
-                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Tag className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                  <select
+                    value={categoryId}
+                    onChange={(e) => setCategoryId(e.target.value)}
+                    className="w-full bg-muted border border-border rounded-lg pl-10 pr-4 py-2.5 text-foreground text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all appearance-none"
+                  >
+                    <option value="">{t('noCategory')}</option>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
+              {/* Error */}
               {error && (
-                <p className="text-xs" style={{ color: '#fca5a5' }}>{error}</p>
+                <div className="bg-destructive/10 border border-destructive/20 rounded-lg px-4 py-3 text-sm text-destructive">
+                  {error}
+                </div>
               )}
 
+              {/* Actions */}
               <div className="flex gap-3 pt-2">
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 py-2 rounded-lg font-medium text-white text-sm"
-                  style={{ backgroundColor: '#4f46e5', opacity: loading ? 0.7 : 1 }}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium text-sm hover:bg-primary/90 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  {loading ? '...' : t('save')}
+                  {loading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    t('save')
+                  )}
                 </button>
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="flex-1 py-2 rounded-lg font-medium text-sm"
-                  style={{ backgroundColor: '#1e293b', color: '#94a3b8' }}
+                  className="flex-1 py-2.5 bg-muted text-muted-foreground rounded-lg font-medium text-sm hover:bg-secondary hover:text-foreground transition-colors"
                 >
                   {t('cancel')}
                 </button>

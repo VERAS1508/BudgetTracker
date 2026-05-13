@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server';
 import ExpenseList from '@/components/ExpenseList';
 import ExpenseForm from '@/components/ExpenseForm';
 import type { Expense, Category } from '@/types';
+import { Receipt, Wallet } from 'lucide-react';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -32,21 +33,38 @@ export default async function ExpensesPage({ params }: Props) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white">{t('title')}</h1>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Receipt className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
+            <p className="text-sm text-muted-foreground">
+              {typedExpenses.length} {typedExpenses.length === 1 ? 'expense' : 'expenses'} total
+            </p>
+          </div>
+        </div>
         <ExpenseForm categories={typedCategories} />
       </div>
 
+      {/* Total Card */}
       {typedExpenses.length > 0 && (
-        <div className="rounded-xl border px-6 py-4 flex justify-between items-center"
-          style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
-          <span style={{ color: '#94a3b8' }}>{t('total')}</span>
-          <span className="text-white font-bold text-lg">
+        <div className="bg-card border border-border rounded-xl px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-chart-1/10 flex items-center justify-center">
+              <Wallet className="w-4 h-4 text-chart-1" />
+            </div>
+            <span className="text-muted-foreground text-sm">{t('total')}</span>
+          </div>
+          <span className="text-foreground font-bold text-xl">
             {new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(total)}
           </span>
         </div>
       )}
 
+      {/* Expense List */}
       <ExpenseList expenses={typedExpenses} locale={locale} />
     </div>
   );

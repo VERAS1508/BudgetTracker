@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
 import LanguageSwitch from './LanguageSwitch';
+import { Wallet, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
 
 type Props = { locale: string };
 
@@ -31,7 +32,6 @@ export default function LoginForm({ locale }: Props) {
       if (error) {
         setError(t('registerError'));
       } else if (data.session) {
-        // Email confirmation disabled — session exists, redirect directly
         router.push(`/${locale}/dashboard`);
         router.refresh();
       } else {
@@ -50,79 +50,113 @@ export default function LoginForm({ locale }: Props) {
   }
 
   return (
-    <div className="w-full max-w-sm">
+    <div className="w-full max-w-md">
       <div className="absolute top-4 right-4">
         <LanguageSwitch />
       </div>
 
-      <div className="rounded-2xl border p-8 space-y-6" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
-        <div className="text-center">
-          <div className="text-4xl mb-2">💰</div>
-          <h1 className="text-2xl font-bold text-white">{t('title')}</h1>
-          <p className="text-sm mt-1" style={{ color: '#94a3b8' }}>{t('subtitle')}</p>
+      <div className="bg-card border border-border rounded-2xl p-8 shadow-2xl shadow-black/20">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+            <Wallet className="w-7 h-7 text-primary" />
+          </div>
+          <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
+          <p className="text-sm text-muted-foreground mt-1">{t('subtitle')}</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Email Field */}
           <div>
-            <label className="block text-sm font-medium mb-1" style={{ color: '#cbd5e1' }}>
+            <label className="block text-sm font-medium text-foreground mb-2">
               {t('email')}
             </label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-              className="w-full rounded-lg px-3 py-2 text-white text-sm outline-none transition-colors"
-              style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}
-              placeholder="name@example.com"
-            />
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Mail className="w-4 h-4 text-muted-foreground" />
+              </div>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full bg-muted border border-border rounded-lg pl-10 pr-4 py-2.5 text-foreground text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-muted-foreground"
+                placeholder="name@example.com"
+              />
+            </div>
           </div>
 
+          {/* Password Field */}
           <div>
-            <label className="block text-sm font-medium mb-1" style={{ color: '#cbd5e1' }}>
+            <label className="block text-sm font-medium text-foreground mb-2">
               {t('password')}
             </label>
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-              minLength={6}
-              className="w-full rounded-lg px-3 py-2 text-white text-sm outline-none"
-              style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}
-              placeholder="••••••••"
-            />
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Lock className="w-4 h-4 text-muted-foreground" />
+              </div>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+                className="w-full bg-muted border border-border rounded-lg pl-10 pr-4 py-2.5 text-foreground text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-muted-foreground"
+                placeholder="Enter your password"
+              />
+            </div>
           </div>
 
+          {/* Error Message */}
           {error && (
-            <p className="text-sm rounded-lg px-3 py-2" style={{ backgroundColor: '#450a0a', color: '#fca5a5' }}>
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg px-4 py-3 text-sm text-destructive">
               {error}
-            </p>
-          )}
-          {success && (
-            <p className="text-sm rounded-lg px-3 py-2" style={{ backgroundColor: '#052e16', color: '#86efac' }}>
-              {success}
-            </p>
+            </div>
           )}
 
+          {/* Success Message */}
+          {success && (
+            <div className="bg-chart-1/10 border border-chart-1/20 rounded-lg px-4 py-3 text-sm text-chart-1">
+              {success}
+            </div>
+          )}
+
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 rounded-lg font-medium text-white transition-opacity text-sm"
-            style={{ backgroundColor: '#4f46e5', opacity: loading ? 0.7 : 1 }}
+            className="w-full flex items-center justify-center gap-2 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium text-sm hover:bg-primary/90 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {loading ? '...' : isRegister ? t('registerButton') : t('loginButton')}
+            {loading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <>
+                {isRegister ? t('registerButton') : t('loginButton')}
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
           </button>
         </form>
 
-        <button
-          onClick={() => { setIsRegister(!isRegister); setError(''); setSuccess(''); }}
-          className="w-full text-sm text-center transition-colors"
-          style={{ color: '#818cf8' }}
-        >
-          {isRegister ? t('switchToLogin') : t('switchToRegister')}
-        </button>
+        {/* Toggle Mode */}
+        <div className="mt-6 pt-6 border-t border-border text-center">
+          <button
+            onClick={() => {
+              setIsRegister(!isRegister);
+              setError('');
+              setSuccess('');
+            }}
+            className="text-sm text-primary hover:text-primary/80 transition-colors"
+          >
+            {isRegister ? t('switchToLogin') : t('switchToRegister')}
+          </button>
+        </div>
       </div>
+
+      {/* Footer */}
+      <p className="text-xs text-muted-foreground text-center mt-6">
+        Track your finances with clarity and control
+      </p>
     </div>
   );
 }

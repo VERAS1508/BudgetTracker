@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server';
 import CategoryList from '@/components/CategoryList';
 import CategoryForm from '@/components/CategoryForm';
 import type { Category } from '@/types';
+import { Tags } from 'lucide-react';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -24,11 +25,23 @@ export default async function CategoriesPage({ params }: Props) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white">{t('title')}</h1>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Tags className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
+            <p className="text-sm text-muted-foreground">
+              {typedCategories.length} {typedCategories.length === 1 ? 'category' : 'categories'} created
+            </p>
+          </div>
+        </div>
         <CategoryForm />
       </div>
 
+      {/* Category List */}
       <CategoryList categories={typedCategories} />
     </div>
   );

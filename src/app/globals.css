@@ -1,16 +1,69 @@
 @import "tailwindcss";
 
+@theme inline {
+  --font-sans: 'Geist', 'Geist Fallback', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback', monospace;
+  
+  --color-background: #09090b;
+  --color-foreground: #fafafa;
+  --color-card: #18181b;
+  --color-card-foreground: #fafafa;
+  --color-muted: #27272a;
+  --color-muted-foreground: #a1a1aa;
+  --color-border: #27272a;
+  --color-primary: #10b981;
+  --color-primary-foreground: #022c22;
+  --color-secondary: #3f3f46;
+  --color-secondary-foreground: #fafafa;
+  --color-accent: #22c55e;
+  --color-accent-foreground: #052e16;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #fafafa;
+  --color-chart-1: #10b981;
+  --color-chart-2: #3b82f6;
+  --color-chart-3: #f59e0b;
+  --color-chart-4: #ec4899;
+  --color-chart-5: #8b5cf6;
+  --radius: 0.75rem;
+}
+
+html {
+  background-color: var(--color-background);
+}
+
 body {
-  background-color: #020617;
-  color: #f1f5f9;
-  font-family: var(--font-geist-sans, Arial, Helvetica, sans-serif);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 * {
   box-sizing: border-box;
+  border-color: var(--color-border);
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(1);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-muted);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted-foreground);
 }
