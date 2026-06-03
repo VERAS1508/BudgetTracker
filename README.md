@@ -2,7 +2,6 @@
 
 Eine persönliche Budgetverwaltungs-App zum Erfassen und Analysieren von Ausgaben.
 
-**Live Demo:** https://budget-tracker-nu-ebon.vercel.app
 
 ## Features
 
